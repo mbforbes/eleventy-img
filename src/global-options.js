@@ -64,6 +64,12 @@ export const DEFAULTS = {
 
   fixOrientation: false, // always rotate images to ensure correct orientation
 
+  // When true, copies the original file instead of re-processing when the requested width and format match the source.
+  // This preserves the original file's quality and encoding, and significantly speeds up processing.
+  // Only applies to local file paths (not remote URLs or Buffers), when no transform function is used,
+  // and when the output would be the same dimensions and format as the source.
+  skipOriginalProcessing: false,
+
   // When the original width is smaller than the desired output width, this is the minimum size difference
   // between the next smallest image width that will generate one extra width in the output.
   // e.g. when using `widths: [400, 800]`, the source image would need to be at least (400 * 1.25 =) 500px wide

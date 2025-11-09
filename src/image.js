@@ -640,6 +640,68 @@ export default class Image {
     return true;
   }
 
+  canSkipOriginalProcessing(stat, metadata) {
+    // Only skip if option is enabled
+    if(!this.options.skipOriginalProcessing) {
+      return false;
+    }
+
+    // Must be local file (not remote URL or Buffer)
+    if(this.isRemoteUrl || Buffer.isBuffer(this.src)) {
+      return false;
+    }
+
+    // Must not have custom transform function
+    if(this.options.transform) {
+      return false;
+    }
+
+    // Width must match original
+    if(stat.width !== metadata.width) {
+      return false;
+    }
+
+    // Format must match original
+    let entryFormat = this.getEntryFormat(metadata);
+    if(stat.format !== entryFormat) {
+      return false;
+    }
+
+    // Don't skip if file is already in outputDir (avoid copying to self)
+    let srcPath = path.resolve(this.src);
+    let outPath = path.resolve(stat.outputPath);
+    if(srcPath === outPath) {
+      return false;
+    }
+
+    return true;
+  }
+
+  // TODO: It's weird to take input and not use it.
+  async copyOriginalFile(input, stat) {
+    try {
+      this.directoryManager.createFromFile(stat.outputPath);
+
+      debugAssets("[11ty/eleventy-img] Copying original (skip processing) %o", stat.outputPath);
+
+      if(this.options.dryRun) {
+        // For dryRun, read file into buffer instead of copying
+        stat.buffer = this.getFileContents();
+        stat.size = stat.buffer.length;
+      } else {
+        // Copy file to output location
+        await fsp.copyFile(this.src, stat.outputPath);
+        stat.size = this.getOutputSize(null, stat.outputPath);
+      }
+
+      debug("Copied original %o", stat.outputPath);
+      return true;
+    } catch(e) {
+      debug("Failed to copy original %o: %o", stat.outputPath, e.message);
+      return false;
+    }
+  }
+
   // src should be a file path to an image or a buffer
   async resize(input) {
     let sharpInputImage = sharp(input, Object.assign({
@@ -674,6 +736,16 @@ export default class Image {
 
           outputFilePromises.push(Promise.resolve(stat));
           continue;
+        }
+
+        // Check if we can skip processing by copying the original file
+        if(this.canSkipOriginalProcessing(stat, sharpMetadata)) {
+          let success = await this.copyOriginalFile(input, stat);
+          if(success) {
+            outputFilePromises.push(Promise.resolve(stat));
+            continue;
+          }
+          // If copy failed, fall through to normal processing
         }
 
         let sharpInstance = sharpInputImage.clone();

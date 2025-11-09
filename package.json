@@ -1,7 +1,7 @@
 {
-  "name": "@11ty/eleventy-img",
-  "version": "7.0.0-alpha.2",
-  "description": "Low level utility to perform build-time image transformations.",
+  "name": "@mbforbes/eleventy-img",
+  "version": "7.0.0-gamma.1",
+  "description": "Low level utility to perform build-time image transformations. Fork of @11ty/eleventy-img with skipOriginalProcessing optimization.",
   "type": "module",
   "publishConfig": {
     "access": "public"
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/11ty/eleventy-img.git"
+    "url": "git+https://github.com/mbforbes/eleventy-img.git"
   },
   "funding": {
     "type": "opencollective",
@@ -33,11 +33,17 @@
     "email": "zachleatherman@gmail.com",
     "url": "https://zachleat.com/"
   },
+  "contributors": [
+    {
+      "name": "Max Forbes",
+      "url": "https://github.com/mbforbes"
+    }
+  ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/11ty/eleventy-img/issues"
+    "url": "https://github.com/mbforbes/eleventy-img/issues"
   },
-  "homepage": "https://github.com/11ty/eleventy-img#readme",
+  "homepage": "https://github.com/mbforbes/eleventy-img#readme",
   "dependencies": {
     "@11ty/eleventy-fetch": "^5.1.0",
     "@11ty/eleventy-utils": "^2.0.7",
